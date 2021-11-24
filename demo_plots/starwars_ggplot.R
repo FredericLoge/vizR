@@ -18,16 +18,107 @@ View(o$results)
 # let's work on starwars characters !
 head(starwars)
 
-# # descriptive statistics and plots ------------------------------------------------ 
+# # descriptive statistics and data wrangling ----------------------------------------------------- 
 
 # check out available characteristics
 str(starwars, 1)
 
+# data wrangling
+starwars %>%
+  filter(mass > 80) %>% # filter  rows
+  filter(map_lgl(films, function(x) "Revenge of the Sith" %in% x)) %>% # filter rows
+  select(-c(vehicles, starships)) %>% # select or drop variables
+  drop_na()  # drop rows with any missing value
+
+# computing statistics  
+starwars %>%
+  group_by(homeworld) %>% # group row indexes for further treatment
+  summarise(n_people = n(), mean_height = mean(height, na.rm = TRUE)) %>% # compute some statistics
+  arrange(desc(mean_height)) # sort rows
+
+# table pivoting
+starwars %>%
+  select(name, height, mass) %>% # select variables
+  pivot_longer(cols = -name, names_to = 'characteristic', values_to = 'value') # pivot them
+
+# # first plot : scatterplot ----------------------------------------------------------------------------------- 
+
+# base canvas
+ggplot(data = starwars)
+
+# adding aesthetics
+ggplot(data = starwars) +
+  aes(x = height, y = mass)
+
+# adding geometric element : scatterplot
+ggplot(data = starwars) +
+  aes(x = height, y = mass) +
+  geom_point()
+
+# adding another geometric element : text
+ggplot(data = starwars) +
+  aes(x = height, y = mass, label = name) +
+  geom_point() +
+  geom_text_repel()
+
+# let's filter out Jabba
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name) +
+  geom_point() +
+  geom_text_repel()
+
+# let's add legend on gender
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name, col = gender) +
+  geom_point() +
+  geom_text_repel()
+
+# adding labels
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name, col = gender) +
+  geom_point() +
+  geom_text_repel() +
+  labs(x = 'Height (cm)', y = 'Mass (kg)', title = 'Mass versus Height for SW personae', subtitle = 'some nice subtitle')
+
+# customizing sizes and other stuff with theme
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name, col = gender) +
+  geom_point() +
+  geom_text_repel() +
+  labs(x = 'Height (cm)', y = 'Mass (kg)', title = 'Mass versus Height for SW personae', subtitle = 'some nice subtitle') +
+  theme(text = element_text(size = 20))
+
+# facetting
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name, col = gender) +
+  geom_point() +
+  geom_text_repel() +
+  labs(x = 'Height (cm)', y = 'Mass (kg)', title = 'Mass versus Height for SW personae', subtitle = 'some nice subtitle') +
+  facet_wrap(.~gender, scales = 'free')
+
+# # usual plots --------------------------------------------------------------------------------------- 
+
+# lineplot
+
+# ribbon, area chart
+
+# histogram / density
+
+# boxplot / violin plot
+
+# barplot / pieplot
+
+# facetting
+
+# going more difficult::
+# cartography
+# interactivity with ggplotly
+# network representation
+# sankey diagram
+
 # column
 # number of different
 # 
-starwars_ep3 = starwars %>% 
-  filter(map_lgl(films, function(x) "Revenge of the Sith" %in% x))
 
 ggplot(data = starwars_ep3) +
   aes(x = height, y = mass, label = name, col = gender) +
