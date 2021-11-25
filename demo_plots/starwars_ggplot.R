@@ -18,10 +18,45 @@ View(o$results)
 # let's work on starwars characters !
 head(starwars)
 
+# let's add some extra info on starwars characters
+characters_extra_info = c(
+  "Yoda", "Jedi Council",
+  "Mace Windu", "Jedi Council",
+  "Plo Koon", "Jedi Council",
+  "Ki-Adi-Mundi", "Jedi Council",
+  "Obi-Wan Kenobi", "Jedi", 
+  "Qui-Gon Jinn", "Jedi", 
+  "Anakin Skywalker", "Jedi",
+  "Luke Skywalker", "Jedi",
+  "Darth Sidious", "Sith",
+  "Darth Vader", "Sith",
+  "Darth Maul", "Sith",
+  "Dooku", "Sith",
+  "Palpatine", "Politician",
+  "Padmé Amidala", "Politician",
+  "Bail Prestor Organa", "Politician",
+  "Leia Organa", "Politician",
+  "Finis Valorum", "Politician",
+  "Greedo", "Bounty Hunters",
+  "Boba Fett", "Bounty Hunters",
+  "Chewbacca", "Thieves",
+  "Lando Calrissian", "Thieves",
+  "Han Solo", "Thieves")
+# parse to proper dataframe with column names
+characters_extra_info <- characters_extra_info %>%
+  matrix(ncol = 2, byrow = TRUE) %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  setNames(nm = c("name", "category")) %>%
+  arrange(name)
+
+#
+starwars <- starwars %>%
+  left_join(characters_extra_info, by = 'name')
+
 # # descriptive statistics and data wrangling ----------------------------------------------------- 
 
 # check out available characteristics
-str(starwars, 1)
+str(starwars, 2)
 
 # data wrangling
 starwars %>%
@@ -70,6 +105,12 @@ ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
 # let's add legend on gender
 ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
   aes(x = height, y = mass, label = name, col = gender) +
+  geom_point() +
+  geom_text_repel()
+
+# let's add legend on something else
+ggplot(data = starwars %>% filter(!startsWith(name, 'Jabba'))) +
+  aes(x = height, y = mass, label = name, col = category) +
   geom_point() +
   geom_text_repel()
 
@@ -125,15 +166,39 @@ text(x = starwars$height, y = starwars$mass + 2,
 legend(x = 200, y = 30, fill = c(as.character(l), 'gray'), 
        legend = c(names(l), 'unknown'))
 
-# # usual plots --------------------------------------------------------------------------------------- 
+# # histogram, boxplot and all ----------------------------------------------------------------------
 
-# lineplot -> time series
-starwars %>%
+# histogram 
+ggplot(data = starwars) +
+  aes(x = mass) +
+  geom_histogram(bins = 15) +
+  scale_x_log10() +
+  geom_rug()
+
+# density
+ggplot(data = starwars) +
+  aes(x = mass) +
+  geom_density(bins = 15) +
+  scale_x_log10() +
+  geom_rug()
+
+# boxplot / violin plot
+ggplot(data = starwars) +
+  aes(x = gender, y = mass) +
+  geom_boxplot() +
+  scale_y_log10()
+
+# # line plot --------------------------------------------------------------------------------------- 
+
+# compute number of people over birthyear
+count_by_birthyear <- starwars %>%
   select(name, birth_year) %>%
   drop_na() %>%
   arrange(birth_year) %>%
-  mutate(count = 1:n()) %>%
-ggplot() +
+  mutate(count = 1:n()) 
+
+# plot geom_line
+ggplot(data = count_by_birthyear) +
   aes(x = birth_year, y = count, label = name) +
   geom_line() +
   geom_point() +
@@ -141,12 +206,15 @@ ggplot() +
   scale_x_log10() +
   labs(title = 'Known Birth Years in Star Wars', x = 'Birth Year', y = 'Count')
 
-# geom_area()
-# geom_ribbon peut marcher aussi
+# # usual plots --------------------------------------------------------------------------------------- 
+
+# count people geom_area() # geom_ribbon can work also
 starwars %>%
   count(birth_year, name = 'count') %>% 
   drop_na() %>%
-  mutate(total_count = cumsum(count)) %>%
+  mutate(total_count = cumsum(count))
+
+#
 ggplot() +
   aes(x = birth_year, y = total_count) +
   geom_area() +
@@ -164,7 +232,8 @@ starwars %>%
   pivot_longer(cols = -c(birth_year), names_to = 'gender', values_to = 'count') %>%
   arrange(birth_year) %>%
   group_by(gender) %>%
-  mutate(total_count = cumsum(count)) %>%
+  mutate(total_count = cumsum(count)) 
+
 ggplot() +
   aes(x = birth_year, y = total_count, fill = gender) +
   geom_area(alpha = 0.6) + 
@@ -172,18 +241,9 @@ ggplot() +
   labs(title = 'Number of people, going back in time, by gender', x = 'Birth Year', y = 'Count') +
   theme(legend.position = 'bottom')
 
-# histogram / density
-ggplot(data = starwars) +
-  aes(x = mass) +
-  geom_histogram(bins = 15) +
-  scale_x_log10() +
-  geom_rug()
 
-# boxplot / violin plot
-ggplot(data = starwars) +
-  aes(x = gender, y = mass) +
-  geom_boxplot() +
-  scale_y_log10()
+# # barplot --------------------------------------------------------------------------------------- 
+
 
 # barplot / pieplot
 ggplot(data = starwars) +
@@ -191,13 +251,13 @@ ggplot(data = starwars) +
   geom_bar()
 starwars %>% 
   count(gender) %>%
-ggplot() +
+  ggplot() +
   aes(x = gender, y = n) +
   geom_bar(stat = 'identity')
 starwars %>% 
   count(gender) %>%
   mutate(prop = n/sum(n)) %>%
-ggplot() +
+  ggplot() +
   aes(x = 'whatever', fill = gender, y = prop) +
   geom_bar(stat = 'identity', position = 'fill') # + coord_polar(theta = 'y')
 
@@ -209,17 +269,23 @@ ggplotly(g)
 # cartography
 # ??
 
-# network representation
-library(ggnet)
+# network representation ---------------------------------------------
+
+# specific libraries
+library(ggnet) # ggplot2 add-on
+library(network) # network specification, data management
+
+#
+# First Network: SW characters appearances in the movies
+#
+
 # define adjacency matrix (one row per person, one col per movie)
-apply(X = starwars$films)
 u = unique(unlist(starwars$films))
 bip = sapply(u, function(ui){
   1 * map_lgl(starwars$films, function(x) ui %in% x)
 })
 rownames(bip) = starwars$name
 colnames(bip) = u
-library(network)
 bip = network(bip,
               matrix.type = "bipartite",
               ignore.eval = FALSE,
@@ -227,27 +293,109 @@ bip = network(bip,
 col = c("actor" = "grey", "event" = "gold")
 ggnet2(bip, color = "mode", palette = col, label = TRUE)
 
-# sankey diagram
+#
+# Second Network: complex relationships between Star Wars characters
+#
+
+# define status for considered nodes
+nodes_raw = c(
+    "Obi-Wan Kenobi", "Jedi", 
+    "Qui-Gon Jinn", "Jedi", 
+    "Anakin Skywalker", "Jedi",
+    "Luke Skywalker", "Jedi",
+    "Darth Sidious", "Sith",
+    "Darth Vader", "Sith",
+    "Darth Maul", "Sith",
+    "Palpatine", "Politician",
+    "Padmé Amidala", "Politician",
+    "Leia Organa", "Politician",
+    "Shmi Skywalker", "Not assigned")
+
+# parse to proper dataframe with column names
+nodes <- nodes_raw %>%
+  matrix(ncol = 2, byrow = TRUE) %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  setNames(nm = c("name", "category")) %>%
+  arrange(name)
+
+# define relatonships amongst Jedis
+edges_raw = c(
+  # jedi teacher-apprentice
+  "Obi-Wan Kenobi", "taught", "Anakin Skywalker",
+  "Obi-Wan Kenobi", "taught", "Luke Skywalker",
+  "Qui-Gon Jinn", "taught", "Obi-Wan Kenobi",
+  # sith teacher-apprentice
+  "Darth Sidious", "taught", "Darth Vader",
+  "Darth Sidious", "taught", "Darth Maul",
+  # transition
+  "Palpatine", "was in fact", "Darth Sidious",
+  "Anakin Skywalker", "became", "Darth Vader",
+  # parent of
+  "Anakin Skywalker", "parent", "Leia Organa",
+  "Padmé Amidala", "parent", "Luke Skywalker",
+  "Anakin Skywalker", "parent", "Luke Skywalker",
+  "Padmé Amidala", "parent", "Leia Organa",
+  "Shmi Skywalker", "parent", "Anakin Skywalker",
+  # who killed who
+  "Anakin Skywalker", "killed", "Padmé Amidala",
+  "Darth Vader", "killed", "Obi-Wan Kenobi",
+  "Darth Maul", "killed", "Qui-Gon Jinn",
+  "Darth Vader", "killed", "Palpatine"
+)
+
+# parse to proper dataframe with column names
+edges <- edges_raw %>%
+  matrix(ncol = 3, byrow = TRUE) %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  setNames(nm = c("source", "weight", "destination")) %>%
+  select(source, destination, weight)
+
+# create network
+some_network = network(edges, vertex.attr = nodes,
+                       matrix.type = "edgelist", ignore.eval = FALSE)
+
+# plot network
+ggnet2(some_network, 
+       label = TRUE, edge.label = "weight",
+       arrow.size = 12, arrow.gap = 0.025, 
+       color = "category", palette = "Set2") +
+  ggtitle('Very complex relationships between StarWars characters') +
+  theme(plot.title = element_text(size = 20, hjust = 0.5),
+        legend.text = element_text(size = 15))
+
+# sankey diagram --------------------------------------------------
+
 # # install.packages("devtools")
 # devtools::install_github("davidsjoberg/ggsankey@main")
+
+# load library
 library(ggsankey)
-tmp = starwars %>% 
+
+# select some variables
+df = starwars %>% 
   filter(map_lgl(starwars$films, function(x) u[1] %in% x)) %>%
   mutate(`Pilot ?` = ifelse(map_int(starships, length)>=1, 'Pilot', 'Not a pilot')) %>%
   rename(`Home world` = `homeworld`, `Species` = `species`) %>%
+  select(`Home world`, `Species`, `Pilot ?`)
+
+# transform the data
+df_ggsankey_ft <- df %>%
   make_long(`Home world`, `Species`, `Pilot ?`) 
-ggplot(tmp, aes(x = x, 
-               next_x = next_x, 
-               node = node, 
-               next_node = next_node,
-               fill = factor(node),
-               label = node)) +
+
+# ggsankey plot
+ggplot(df_ggsankey_ft) +
+  aes(x = x, next_x = next_x, node = node,
+      next_node = next_node,
+      fill = factor(node), label = node) +
   geom_sankey(flow.alpha = 0.75, node.color = 1) +
   geom_sankey_label() +
   theme_sankey(base_size = 16) +
   labs(fill = 'Node', x = '') +
   theme(legend.position = 'none')
-ggplotly(g)
+
+# apply ggplotly
+# ggplotly()
+
 
 # setting manual color scale -------------------------------------------------------
 
