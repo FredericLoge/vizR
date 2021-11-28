@@ -1,4 +1,4 @@
-# Visualization with R using ggplot2 and shiny (mostly 😉)
+# Visualization with R using ggplot2 and shiny
 
 | file / folder | description | 
 | --------------------------|--------|
