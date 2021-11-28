@@ -396,21 +396,3 @@ ggplot(df_ggsankey_ft) +
 # apply ggplotly
 # ggplotly()
 
-
-# setting manual color scale -------------------------------------------------------
-
-# TODO : recode
-starwars_ep3 %>%
-  count(eye_color)
-paste0(unique(starwars_ep3$eye_color), collapse = ', ')
-starwars_ep3$eye_color_coded =starwars_ep3$eye_color 
-starwars_ep3$eye_color_coded[starwars_ep3$eye_color_coded == 'blue-gray'] = 'slategray2' 
-starwars_ep3$eye_color_coded[starwars_ep3$eye_color_coded == 'blue-gray'] = 'slategray2' 
-starwars_ep3$eye_color_coded[starwars_ep3$eye_color_coded == 'green, yellow']= 'yellowgreen'
-starwars_ep3$eye_color_coded[starwars_ep3$eye_color_coded == 'red, blue'] = 'maroon3'
-# 'hazel' =  
-#colz = 
-u = unique(starwars_ep3$eye_color_coded)
-colz = c('blue' = 'blue', 'yellow' = 'yellow', 'red' = 'red', 'brown' = 'brown', 'slategray2' = 'slategray2', 'hazel' = 'black', 'black' = 'black', 'orange' = 'orange', 'maroon3' = 'maroon3', 'yellowgreen' = 'yellowgreen', 'white' = 'white')
-starwars_ep3$eye_color_coded_bg = 'white'
-starwars_ep3$eye_color_coded_bg[starwars_ep3$eye_color_coded == 'yellow'] = 'black'
