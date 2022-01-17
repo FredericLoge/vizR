@@ -3,7 +3,7 @@
 | file / folder | description | 
 | --------------------------|--------|
 | visualisationAndShiny.pdf | course slides | 
-| /cran_packages | statistics on R pkgs |
-| /demo_apps | shiny demos   |
-| /demo_plots | ggplots demos    |
-| /starwars_app | small shiny app on starwars   |
+| count_cran_packages.R | statistics on R pkgs |
+| /apps | shiny demos   |
+| /plots | ggplots demos    |
+| /starwars_icon | small icons   |
