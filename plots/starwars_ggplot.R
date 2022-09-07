@@ -269,7 +269,7 @@ ggplot(tmp) +
   labs(title = 'Known Birth Years in Star Wars', x = 'Birth Year', y = 'Count')
 
 
-# # usual plots --------------------------------------------------------------------------------------- 
+# # geom_area --------------------------------------------------------------------------------------- 
 
 # count people geom_area() # geom_ribbon can work also
 starwars %>%

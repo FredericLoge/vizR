@@ -1,16 +1,8 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(tidyverse)
 library(shiny)
 library(ggrepel)
 library(shinyWidgets)
+library(DT)
 data('starwars')
 
 img_path = "https://www.journaldugeek.com/content/uploads/2021/08/template-template-images-jdg-pptx29.jpg"
