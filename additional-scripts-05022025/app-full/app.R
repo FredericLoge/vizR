@@ -9,8 +9,8 @@ library(shinyalert)
 
 data("starwars")
 
-img_luke <- "../starwars_icon/luke.jpg" # https://images.app.goo.gl/quaR7KeXebQvXkAg6"
-img_darth <- "../starwars_icon/darthVader.jpg" 
+img_luke <- "../../starwars_icon/luke.jpg" # https://images.app.goo.gl/quaR7KeXebQvXkAg6"
+img_darth <- "../../starwars_icon/darthVader.jpg" 
 
 starwars <- starwars %>%
   select(-c(films, vehicles, starships)) %>%
